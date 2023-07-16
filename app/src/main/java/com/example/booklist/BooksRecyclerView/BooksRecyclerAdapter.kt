@@ -9,7 +9,7 @@ import com.example.booklist.BookDoc
 import com.example.booklist.R
 
 
-class BooksRecyclerAdapter(private val dataSet: List<BookDoc>) :
+class BooksRecyclerAdapter(private val dataSet: List<BookDoc>, private val onItemClick: (BookDoc) -> Unit = {}) :
     RecyclerView.Adapter<BooksRecyclerAdapter.ViewHolder>() {
 
     /**
@@ -37,6 +37,9 @@ class BooksRecyclerAdapter(private val dataSet: List<BookDoc>) :
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
 
+        viewHolder.itemView.setOnClickListener {
+            onItemClick(dataSet[position])
+        }
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         viewHolder.bookTitleTextView.text = dataSet[position].title

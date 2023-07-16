@@ -1,5 +1,6 @@
 package com.example.booklist
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -24,8 +25,17 @@ class MainActivity : AppCompatActivity() {
         val searchTextInput = findViewById<EditText>(R.id.search_input)
         val booksRecyclerView = findViewById<RecyclerView>(R.id.books_list)
 
+        fun onItemClick(book: BookDoc) {
+            Log.d("CLICKED", book.title)
+
+            val intent = Intent(this, BookDetailActivity::class.java)
+            intent.putExtra("book_title", book.title)
+            //stop animation
+            startActivity(intent)
+        }
+
         booksRecyclerView.layoutManager = LinearLayoutManager(this)
-        booksRecyclerView.adapter = BooksRecyclerAdapter(listOf())
+        booksRecyclerView.adapter = BooksRecyclerAdapter(listOf(), ::onItemClick)
 
         searchTextInput.setOnEditorActionListener { _, actionId, _ ->
             if (actionId != EditorInfo.IME_ACTION_SEARCH) {
@@ -36,7 +46,11 @@ class MainActivity : AppCompatActivity() {
                 onSuccess = { response ->
                     run {
                         Log.d("APIREQUESTSUCCES", response.toString())
-                        booksRecyclerView.adapter = BooksRecyclerAdapter(response.docs.subList(0, 10))
+                        val visualizedBooks = response.docs
+                        if (visualizedBooks.size > 10) {
+                            visualizedBooks.subList(0, 10)
+                        }
+                        booksRecyclerView.adapter = BooksRecyclerAdapter(visualizedBooks, ::onItemClick)
                     }
                 },
                 onFail = { error ->
@@ -48,6 +62,8 @@ class MainActivity : AppCompatActivity() {
 
             true
         }
+
+
     }
 
     private fun fetchBook(name: String, onSuccess: (BookApiResponse) -> Unit = {}, onFail: (String) -> Unit = {}) {
